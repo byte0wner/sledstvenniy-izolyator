@@ -13,6 +13,7 @@ LOG_PATH="путь/куда/будет/сохраняться/лог"
 4. спуллить из докера дебиан контейнер `sudo docker pull debian`
 5. установить пакеты из `requirements.txt` с флагом `--break-system-packages`
 6. вписать в `/etc/ssh/sshd_config` строку `ForceCommand /usr/bin/python3 <path_to_watchdog>/watchdog.py` (похуй куда)
+7. установить https://gvisor.dev/docs/user_guide/install/
 
 
 huinya:

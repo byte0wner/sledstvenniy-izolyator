@@ -16,13 +16,11 @@ bot = telebot.TeleBot(TOKEN)
 # 5 секунд на то чтобы ответить - ты ли подрубился по ssh или нет
 # если ответа нет, значит по умолчанию считается что не ты
 def check_access():
-    remote_addr = os.getenv("PAM_RHOST", "unknown_rhost")
-
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton("Мужик", callback_data='yes'))
     markup.add(telebot.types.InlineKeyboardButton("Сука", callback_data='no'))
     
-    sent_msg = bot.send_message(CHAT_ID, "Братишка, тут новенький заехал: " + remote_addr, reply_markup=markup)
+    sent_msg = bot.send_message(CHAT_ID, "Братишка, тут новенький заехал", reply_markup=markup)
 
     start_time = time.time()
     choice = None
@@ -51,13 +49,20 @@ def check_access():
 
 # короче заменяем дефолтный /bin/bash или че у вас там
 # на пиздатенький терминал внутри докера
-# и пишем в лог файл все че делал пацанчик у нас в контейнере
 def move_user_to_docker():
-    log_filename = f"/suspicious_access_{int(time.time())}.log"
-    log_path = LOG_PATH + log_filename
+    docker_cmd = [
+        "docker", "run",
+        "--rm",
+        "-it",
+        "--runtime=runsc",
+        "--hostname", "bebrian",
+        "--network", "bridge",
+        "--memory", "512m",
+        "debian",
+        "/bin/bash"
+    ]
 
-    docker_cmd = ["script", "-q", "-c", "docker run --hostname bebrian --rm -it debian /bin/bash", log_path]
-    os.execvp("script", docker_cmd)
+    os.execvp("docker", docker_cmd)
 
 if __name__ == "__main__":
     allowed = check_access()
